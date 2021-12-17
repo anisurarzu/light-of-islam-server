@@ -157,7 +157,22 @@ async function run() {
       const question = await questionCollection.findOne(query);
       res.json(question);
     });
-
+    // update question with answer
+    app.put("/questions/answer", async (req, res) => {
+      const answer = req.body;
+      console.log(answer);
+      const filter = { _id: ObjectId(answer.id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: { answer: answer.answer },
+      };
+      const result = await questionCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
+    });
     // //post reviews
     // app.post("/reviews", async (req, res) => {
     //   const review = req.body;
