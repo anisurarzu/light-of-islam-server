@@ -37,14 +37,7 @@ async function run() {
     // });
 
     // // get single product
-    // app.get("/products/:id", async (req, res) => {
-    //   const id = req.params.id;
 
-    //   const query = { _id: ObjectId(id) };
-    //   const product = await productCollection.findOne(query);
-
-    //   res.json(product);
-    // });
     // // // delete api(products)
     // app.delete("/products/:id", async (req, res) => {
     //   const id = req.params.id;
@@ -52,6 +45,18 @@ async function run() {
     //   const result = await productCollection.deleteOne(query);
     //   res.json(result);
     // });
+
+    //get single user
+
+    app.get("/users/scholar/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const singleScholar = await userCollection?.findOne(query);
+      res.json({ ...singleScholar, bookedDates: ["24-12-2021", "26-12-2021"] });
+    });
+
+    // get admin info
+
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -109,6 +114,14 @@ async function run() {
       res.json(user);
     });
 
+    // get scholar
+
+    app.get("/users", async (req, res) => {
+      const cursor = userCollection.find({});
+      const user = await cursor.toArray();
+      res.send(user);
+    });
+
     // admin api
     app.put("/users/admin", async (req, res) => {
       const user = req.body;
@@ -164,7 +177,7 @@ async function run() {
       const filter = { _id: ObjectId(answer.id) };
       const options = { upsert: true };
       const updateDoc = {
-        $set: { answer: answer.answer },
+        $set: { answer: answer.answer, answeredBy: answer.answeredBy },
       };
       const result = await questionCollection.updateOne(
         filter,
