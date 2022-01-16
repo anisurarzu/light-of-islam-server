@@ -25,6 +25,7 @@ async function run() {
     const database = client.db("lightOfIslam");
     const questionCollection = database.collection("questions");
     const userCollection = database.collection("users");
+    const eventCollection = database.collection("events");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -176,6 +177,7 @@ async function run() {
       console.log(answer);
       const filter = { _id: ObjectId(answer.id) };
       const options = { upsert: true };
+
       const updateDoc = {
         $set: { answer: answer.answer, answeredBy: answer.answeredBy },
       };
@@ -186,6 +188,39 @@ async function run() {
       );
       res.json(result);
     });
+
+    //  create an event
+    // event post api
+
+    app.post("/events", async (req, res) => {
+      const event = req.body;
+      const result = await eventCollection.insertOne(event);
+      res.json(result);
+    });
+
+    // get event by single user
+    app.get("/events", async (req, res) => {
+      const cursor = eventCollection.find({});
+      const event = await cursor.toArray();
+      res.send(event);
+    });
+    // put event
+    app.put("/events/booking", async (req, res) => {
+      const booking = req.body;
+      console.log(booking);
+      const filter = { _id: ObjectId(booking?.eventId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: { booking: booking },
+      };
+      const result = await eventCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
+    });
+
     // //post reviews
     // app.post("/reviews", async (req, res) => {
     //   const review = req.body;
