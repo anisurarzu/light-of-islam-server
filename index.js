@@ -26,6 +26,8 @@ async function run() {
     const questionCollection = database.collection("questions");
     const userCollection = database.collection("users");
     const eventCollection = database.collection("events");
+    const statusCollection = database.collection("bookingStatus");
+    const scheduleCollection = database.collection("schedule");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -53,7 +55,7 @@ async function run() {
       const email = req.params.email;
       const query = { email: email };
       const singleScholar = await userCollection?.findOne(query);
-      res.json({ ...singleScholar, bookedDates: ["24-12-2021", "26-12-2021"] });
+      res.json(singleScholar);
     });
 
     // get admin info
@@ -214,6 +216,68 @@ async function run() {
         $push: { booking: booking },
       };
       const result = await eventCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result);
+    });
+    // get event details
+    app.get("/event/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const event = await eventCollection.findOne(query);
+      res.json(event);
+    });
+
+    // booking status post
+    app.post("/bookingStatus", async (req, res) => {
+      const status = req.body;
+      const result = await statusCollection.insertOne(status);
+      res.json(result);
+    });
+
+    // get booking status
+    app.get("/bookingStatus", async (req, res) => {
+      const cursor = statusCollection.find({});
+      const status = await cursor.toArray();
+      res.send(status);
+    });
+
+    // schedule post
+    app.post("/schedule", async (req, res) => {
+      const schedule = req.body;
+      const result = await scheduleCollection.insertOne(schedule);
+      res.json(result);
+    });
+    // get schedule
+    app.get("/schedule", async (req, res) => {
+      const cursor = scheduleCollection.find({});
+      const schedule = await cursor.toArray();
+      res.send(schedule);
+    });
+
+    // update schedule dates
+    app.put("/schedule/bookingInfo", async (req, res) => {
+      const bookingInfo = req.body;
+      const filter = { _id: ObjectId(bookingInfo?.scholarId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: { bookedDates: bookingInfo.bookedDates },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.json(result);
+    });
+    // update schedule status
+    app.put("/schedule/bookingStatus", async (req, res) => {
+      const bookingInfo = req.body;
+      console.log(bookingInfo);
+      const filter = { _id: ObjectId(bookingInfo?.scheduleId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: { status: bookingInfo.status },
+      };
+      const result = await scheduleCollection.updateOne(
         filter,
         updateDoc,
         options
