@@ -1,8 +1,9 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const ObjectId = require("mongodb").ObjectId;
-
 require("dotenv").config();
+const ObjectId = require("mongodb").ObjectId;
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
+
 const cors = require("cors");
 
 const app = express();
@@ -28,6 +29,7 @@ async function run() {
     const eventCollection = database.collection("events");
     const statusCollection = database.collection("bookingStatus");
     const scheduleCollection = database.collection("schedule");
+    const paymentCollection = database.collection("paymentInfo");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -282,6 +284,27 @@ async function run() {
         updateDoc,
         options
       );
+      res.json(result);
+    });
+
+    // stripe payment
+    app.post("/create-payment-intent", async (req, res) => {
+      const paymentInfo = req.body;
+      const amount = paymentInfo.price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: "usd",
+        amount: amount,
+        payment_method_types: ["card"],
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    });
+
+    // post payment success information
+    app.post("/paymentInfo", async (req, res) => {
+      const payment = req.body;
+      const result = await paymentCollection.insertOne(payment);
       res.json(result);
     });
 
