@@ -30,6 +30,7 @@ async function run() {
     const statusCollection = database.collection("bookingStatus");
     const scheduleCollection = database.collection("schedule");
     const paymentCollection = database.collection("paymentInfo");
+    const scholarIdCollection = database.collection("IFB_identity");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -232,6 +233,14 @@ async function run() {
       res.json(event);
     });
 
+    //delete event
+    app.delete("/event/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await eventCollection.deleteOne(query);
+      res.json(result);
+    });
+
     // booking status post
     app.post("/bookingStatus", async (req, res) => {
       const status = req.body;
@@ -306,6 +315,13 @@ async function run() {
       const payment = req.body;
       const result = await paymentCollection.insertOne(payment);
       res.json(result);
+    });
+
+    // get scholar islamic foundation id
+    app.get("/scholarId", async (req, res) => {
+      const cursor = scholarIdCollection.find({});
+      const scholarId = await cursor.toArray();
+      res.send(scholarId);
     });
 
     // //post reviews
