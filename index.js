@@ -317,6 +317,14 @@ async function run() {
       res.json(result);
     });
 
+    // get payment information
+    // get event by single user
+    app.get("/paymentInfo", async (req, res) => {
+      const cursor = paymentCollection.find({});
+      const payment = await cursor.toArray();
+      res.send(payment);
+    });
+
     // get scholar islamic foundation id
     app.get("/scholarId", async (req, res) => {
       const cursor = scholarIdCollection.find({});
