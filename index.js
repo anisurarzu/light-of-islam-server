@@ -14,7 +14,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.g7zap.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+/* const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.g7zap.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`; */
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.g7zap.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -31,6 +32,8 @@ async function run() {
     const scheduleCollection = database.collection("schedule");
     const paymentCollection = database.collection("paymentInfo");
     const scholarIdCollection = database.collection("IFB_identity");
+    const financeCollection = database.collection("finance");
+    const loanCollection = database.collection("loanSchema");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -62,7 +65,6 @@ async function run() {
     });
 
     // get admin info
-
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -145,6 +147,28 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc);
       res.json(result);
     });
+
+    // dmf loan schema
+
+    // send transaction info
+
+    app.post("/deposit", async (req, res) => {
+      const depositInfo = req.body;
+      const result = await loanCollection.insertOne(depositInfo);
+      res.json(result);
+    });
+    app.get("/deposit", async (req, res) => {
+      const cursor = loanCollection.find({});
+      const depositInfo = await cursor.toArray();
+      res.send(depositInfo);
+    });
+    app.get("/deposit/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const depositInfo = await loanCollection?.find(query);
+      res.json(depositInfo);
+    });
+
     // send question
     app.post("/questions", async (req, res) => {
       const question = req.body;
@@ -279,7 +303,7 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.json(result);
     });
-    // update schedule status
+    // update schedule status on booking status collection
     app.put("/schedule/bookingStatus", async (req, res) => {
       const bookingInfo = req.body;
       console.log(bookingInfo);
