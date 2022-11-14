@@ -416,7 +416,7 @@ async function run() {
 }
 run().catch(console.dir);
 app.get("/", (req, res) => {
-  res.send("Lof server two is running");
+  res.send("dmf server two is running");
 });
 
 app.listen(port, () => {
