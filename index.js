@@ -5,10 +5,8 @@ const ObjectId = require("mongodb").ObjectId;
 const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 const cors = require("cors");
-
 const app = express();
 const port = process.env.PORT || 5000;
-
 // middleware
 
 app.use(cors());
@@ -34,6 +32,7 @@ async function run() {
     const scholarIdCollection = database.collection("IFB_identity");
     const financeCollection = database.collection("finance");
     const loanCollection = database.collection("loanSchema");
+    const loanCollection2 = database.collection("loanSchema2");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -167,6 +166,12 @@ async function run() {
       const query = { email: email };
       const depositInfo = await loanCollection?.find(query);
       res.json(depositInfo);
+    });
+
+    app.post("/loanRequest", async (req, res) => {
+      const loanInfo = req.body;
+      const result = await loanCollection2.insertOne(loanInfo);
+      res.json(result);
     });
 
     // send question
