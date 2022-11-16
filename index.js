@@ -2,7 +2,6 @@ const express = require("express");
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
 const ObjectId = require("mongodb").ObjectId;
-const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 const cors = require("cors");
 const app = express();
@@ -20,7 +19,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // await client.connect();
+    await client.connect();
     const database = client.db("lightOfIslam");
     const questionCollection = database.collection("questions");
     const userCollection = database.collection("users");
@@ -415,7 +414,7 @@ async function run() {
     //   res.json(result);
     // });
   } finally {
-    //    await client.close()
+    // await client.close();
   }
 }
 run().catch(console.dir);
