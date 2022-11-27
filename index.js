@@ -30,6 +30,7 @@ async function run() {
     const scholarIdCollection = database.collection("IFB_identity");
     const financeCollection = database.collection("finance");
     const loanCollection = database.collection("loanSchema");
+    const depositHistory = database.collection("loanSchema");
     const loanCollection2 = database.collection("loanSchema2");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
@@ -169,6 +170,26 @@ async function run() {
     app.post("/loanRequest", async (req, res) => {
       const loanInfo = req.body;
       const result = await loanCollection2.insertOne(loanInfo);
+      res.json(result);
+    });
+
+    //insert deposit history
+
+    app.post("/depositHistory", async (req, res) => {
+      const depositHistoryInfo = req.body;
+      const result = await depositHistory.insertOne(depositHistoryInfo);
+      res.json(result);
+    });
+
+    app.put("/deposit", async (req, res) => {
+      const depositInfo = req.body;
+      console.log(depositInfo);
+      const filter = { _id: ObjectId(depositInfo?.depositID) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: { status: depositInfo.status },
+      };
+      const result = await loanCollection.updateOne(filter, updateDoc, options);
       res.json(result);
     });
 
