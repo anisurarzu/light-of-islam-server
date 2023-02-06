@@ -173,7 +173,7 @@ async function run() {
       res.json(result);
     });
 
-    //insert deposit history
+    //insert deposit amount history
 
     app.post("/depositHistory", async (req, res) => {
       const depositHistoryInfo = req.body;
