@@ -21,7 +21,7 @@ async function run() {
   try {
     await client.connect();
     const database = client.db("lightOfIslam");
-    const questionCollection = database.collection("questions");
+    const brandCollections = database.collection("brandCollections");
     const userCollection = database.collection("users");
     const eventCollection = database.collection("events");
     const statusCollection = database.collection("bookingStatus");
@@ -32,6 +32,7 @@ async function run() {
     const loanCollection = database.collection("loanSchema");
     const depositHistory = database.collection("loanSchema");
     const loanCollection2 = database.collection("loanSchema2");
+    const modelCollection = database.collection("modelCollection");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -108,6 +109,16 @@ async function run() {
       const filter = { email: user.email };
       const options = { upsert: true };
       const updateDoc = { $set: { image: user.image } };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.json(result);
+    });
+
+    // update user information
+    app.put("/users/profile", async (req, res) => {
+      const updateData = req.body;
+      const filter = { email: updateData.email };
+      const options = { upsert: true };
+      const updateDoc = { $set: { details: updateData } };
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.json(result);
     });
@@ -196,14 +207,14 @@ async function run() {
     // send question
     app.post("/questions", async (req, res) => {
       const question = req.body;
-      const result = await questionCollection.insertOne(question);
+      const result = await brandCollections.insertOne(question);
       res.json(result);
     });
 
     // // get individual question api
 
     app.get("/questions", async (req, res) => {
-      const cursor = questionCollection.find({});
+      const cursor = brandCollections.find({});
       const question = await cursor.toArray();
       res.send(question);
     });
@@ -213,7 +224,7 @@ async function run() {
     app.delete("/questions/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await questionCollection.deleteOne(query);
+      const result = await brandCollections.deleteOne(query);
       res.json(result);
     });
 
@@ -221,7 +232,7 @@ async function run() {
     app.get("/questions/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const question = await questionCollection.findOne(query);
+      const question = await brandCollections.findOne(query);
       res.json(question);
     });
     // update question with answer
@@ -234,13 +245,60 @@ async function run() {
       const updateDoc = {
         $set: { answer: answer.answer, answeredBy: answer.answeredBy },
       };
-      const result = await questionCollection.updateOne(
+      const result = await brandCollections.updateOne(
         filter,
         updateDoc,
         options
       );
       res.json(result);
     });
+    ////////////////////////////////////////////////////////////////////////
+
+    /// save model brand wise
+    app.post("/model", async (req, res) => {
+      const model = req.body;
+      const result = await modelCollection.insertOne(model);
+      res.json(result);
+    });
+
+    app.put("/brandWiseModel", async (req, res) => {
+      console.log("req", req.body);
+      const brandWiseModel = req.body;
+      const filter = { _id: ObjectId(brandWiseModel?.brandID) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: { brandWiseModel },
+      };
+      const result2 = await brandCollections.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result2);
+    });
+    // get model list
+
+    app.get("/model", async (req, res) => {
+      const cursor = modelCollection.find({});
+      const model = await cursor.toArray();
+      res.send(model);
+    });
+    app.get("/model/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const question = await brandCollections.findOne(query);
+      res.json(question);
+    });
+
+    // get brand wise model list
+    // get single question api
+    /*  app.get("/model/:name", async (req, res) => {
+      const name = req.params._id;
+      const query = { brandName: name };
+      // const models = await modelCollection.find({});
+      const models = await modelCollection.findOne(query);
+      res.json(models);
+    }); */
 
     //  create an event
     // event post api
