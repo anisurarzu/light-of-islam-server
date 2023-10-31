@@ -4,6 +4,7 @@ require("dotenv").config();
 const ObjectId = require("mongodb").ObjectId;
 
 const cors = require("cors");
+
 const app = express();
 const port = process.env.PORT || 5000;
 // middleware
@@ -33,6 +34,9 @@ async function run() {
     const depositHistory = database.collection("loanSchema");
     const loanCollection2 = database.collection("loanSchema2");
     const modelCollection = database.collection("modelCollection");
+    const problemCollection = database.collection("problemCollection");
+    const warrantyCollection = database.collection("warrantyCollection");
+    const engineerCollection = database.collection("engineerCollection");
     // const orderCollection = database.collection("orders");
     // const reviewCollection = database.collection("reviews");
     // const orderCollection = database.collection("orders");
@@ -288,6 +292,98 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const question = await brandCollections.findOne(query);
       res.json(question);
+    });
+
+    app.delete("/model/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await modelCollection.deleteOne(query);
+      res.json(result);
+    });
+    // save problem/////////////////////////////
+
+    app.post("/problem", async (req, res) => {
+      const problem = req.body;
+      const result = await problemCollection.insertOne(problem);
+      res.json(result);
+    });
+
+    // get model list
+
+    app.get("/problem", async (req, res) => {
+      const cursor = problemCollection.find({});
+      const problem = await cursor.toArray();
+      res.send(problem);
+    });
+    app.get("/problem/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const question = await problemCollection.findOne(query);
+      res.json(question);
+    });
+
+    app.delete("/problem/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await problemCollection.deleteOne(query);
+      res.json(result);
+    });
+    // save engineer name/////////////////////////////
+
+    app.post("/eName", async (req, res) => {
+      const eName = req.body;
+      const result = await engineerCollection.insertOne(eName);
+      res.json(result);
+    });
+
+    // get model list
+
+    app.get("/eName", async (req, res) => {
+      const cursor = engineerCollection.find({});
+      const eName = await cursor.toArray();
+      res.send(eName);
+    });
+    app.get("/eName/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const eName = await engineerCollection.findOne(query);
+      res.json(eName);
+    });
+
+    app.delete("/eName/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await engineerCollection.deleteOne(query);
+      res.json(result);
+    });
+
+    // save warranty/////////////////////////////
+
+    app.post("/warranty", async (req, res) => {
+      const warranty = req.body;
+      const result = await warrantyCollection.insertOne(warranty);
+      res.json(result);
+    });
+
+    // get model list
+
+    app.get("/warranty", async (req, res) => {
+      const cursor = warrantyCollection.find({});
+      const eName = await cursor.toArray();
+      res.send(eName);
+    });
+    app.get("/warranty/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const warranty = await warrantyCollection.findOne(query);
+      res.json(warranty);
+    });
+
+    app.delete("/warranty/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await warrantyCollection.deleteOne(query);
+      res.json(result);
     });
 
     // get brand wise model list
