@@ -34,6 +34,7 @@ async function run() {
     const depositHistory = database.collection("loanSchema");
     const loanCollection2 = database.collection("loanSchema2");
     const modelCollection = database.collection("modelCollection");
+    const seriesCollection = database.collection("seriesCollection");
     const problemCollection = database.collection("problemCollection");
     const warrantyCollection = database.collection("warrantyCollection");
     const engineerCollection = database.collection("engineerCollection");
@@ -177,7 +178,9 @@ async function run() {
     });
     app.get("/deposit/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email: email };
+      console.log("id", email);
+      const query = { engineerID: ObjectId(email) };
+      console.log("id", query);
       const depositInfo = await loanCollection?.find(query);
       res.json(depositInfo);
     });
@@ -198,6 +201,7 @@ async function run() {
 
     app.put("/deposit", async (req, res) => {
       const depositInfo = req.body;
+
       console.log(depositInfo);
       const filter = { _id: ObjectId(depositInfo?.depositID) };
       const options = { upsert: true };
@@ -298,6 +302,50 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await modelCollection.deleteOne(query);
+      res.json(result);
+    });
+    // save series//////////////////////////////
+    /// save model brand wise
+    app.post("/series", async (req, res) => {
+      const model = req.body;
+      const result = await seriesCollection.insertOne(model);
+      res.json(result);
+    });
+
+    app.put("/brandWiseSeries", async (req, res) => {
+      console.log("req", req.body);
+      const brandWiseSeries = req.body;
+      const filter = { _id: ObjectId(brandWiseSeries?.brandID) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: { brandWiseSeries },
+      };
+      const result2 = await brandCollections.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result2);
+    });
+    // get series list
+
+    app.get("/series", async (req, res) => {
+      const cursor = seriesCollection.find({});
+      const series = await cursor.toArray();
+      res.send(series);
+    });
+    app.get("/series/:id", async (req, res) => {
+      console.log("req", req.body);
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const question = await brandCollections.findOne(query);
+      res.json(question);
+    });
+
+    app.delete("/series/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await seriesCollection.deleteOne(query);
       res.json(result);
     });
     // save problem/////////////////////////////
