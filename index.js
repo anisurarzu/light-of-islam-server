@@ -32,6 +32,7 @@ async function run() {
     const financeCollection = database.collection("finance");
     const loanCollection = database.collection("loanSchema");
     const depositHistory = database.collection("loanSchema");
+    const customerCollection = database.collection("customerCollection");
     const loanCollection2 = database.collection("loanSchema2");
     const modelCollection = database.collection("modelCollection");
     const seriesCollection = database.collection("seriesCollection");
@@ -189,6 +190,29 @@ async function run() {
       const loanInfo = req.body;
       const result = await loanCollection2.insertOne(loanInfo);
       res.json(result);
+    });
+
+    // insert customer history
+    app.post("/customerInfo", async (req, res) => {
+      const customerInfo = req.body;
+      const result = await customerCollection.insertOne(customerInfo);
+      res.json(result);
+    });
+
+    app.put("/customerInfo", async (req, res) => {
+      console.log("req", req.body);
+      const customer = req.body;
+      const filter = { _id: ObjectId(customer?.customerID) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $push: { customer },
+      };
+      const result2 = await customerCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.json(result2);
     });
 
     //insert deposit amount history
