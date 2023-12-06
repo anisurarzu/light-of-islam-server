@@ -177,6 +177,24 @@ async function run() {
       const depositInfo = await cursor.toArray();
       res.send(depositInfo);
     });
+    app.get("/depositWithDate", async (req, res) => {
+      const { startDate, endDate } = req.query;
+      console.log("startDate", startDate);
+
+      try {
+        const cursor = loanCollection.find({
+          orderDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        });
+
+        const depositInfo = await cursor.toArray();
+        res.send(depositInfo);
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
     app.get("/deposit/:email", async (req, res) => {
       const email = req.params.email;
       console.log("id", email);
